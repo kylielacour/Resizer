@@ -1,13 +1,20 @@
 <h2>Type Style Group Swapper</h2>
 <p>Count: <input id="count" value="5"></p>
-<button id="create">Create</button>
+<select id="comp-size">
+  <option>240</option>
+  <option>768</option>
+  <option>1024</option>
+</select>
+<button id="apply">Apply</button>
 <button id="cancel">Cancel</button>
 <script>
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*')
+document.getElementById('apply').onclick = () => {
+  // const selectBox = document.getElementById('comp-size');
+  // const spacerInput = selectBox.value;
+
+  const spacerInput = "768"; //todo: remove this
+  parent.postMessage({ pluginMessage: { type: 'spacer-input', spacerInput } }, '*')
 }
 
 document.getElementById('cancel').onclick = () => {

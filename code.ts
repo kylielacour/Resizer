@@ -8,10 +8,62 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
+//function to get folder name prefix
+const getNameParts = (name: string) => {
+  const nameParts = name.split('/').filter((part: string) => !!part)
+  return nameParts.map((part: string) => part.trim())
+}
+const getNamePrefix = (name: string): string => {
+  const pathParts = getNameParts(name)
+  pathParts.pop()
+  return pathParts.join('/')
+}
+
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
 figma.ui.onmessage = msg => {
+  if (msg.type === 'spacer-input') {
+
+    //Skip over invisible nodes and their descendants inside instances for faster performance
+    figma.skipInvisibleInstanceChildren = true
+
+    //Gets all instance and text nodes
+    const components = figma.currentPage.findAllWithCriteria({
+      types: ['INSTANCE', 'TEXT']
+    })
+
+    //create arrays to store spacer and text nodes
+    const spacerNodes = []
+    const textNodes = []
+
+    //sorts nodes between spacer and text
+    //makes sure all instance nodes are spacers
+    for (const node of components) {
+      if (node.type === 'INSTANCE' && node.removed === false && node.name.includes("~spacer") && (node.variantProperties)) {
+        spacerNodes.push(node)
+      }
+      if (node.type === 'TEXT') {
+        textNodes.push(node)
+      }
+    }
+
+    // get the new folder name from the user
+    const input = msg.spacerInput; // 768
+
+    // loop through text nodes
+    // for each text node, get the full name
+    // discard the folder portion and keep the name
+    // using the new folder name from the user, create a string in the form of folder/name
+    // assign it to the node
+
+    //Finds all nodes in spacerNodes array with the name ~spacer and changes the Variant Property
+    for (const spacer of spacerNodes) {
+      spacer.setProperties({"Comp":input})
+    }
+
+  }
+
   // One way of distinguishing between different types of messages sent from
   // your HTML page is to use an object with a "type" property like this.
   if (msg.type === 'create-rectangles') {
@@ -27,93 +79,6 @@ figma.ui.onmessage = msg => {
     figma.viewport.scrollAndZoomIntoView(nodes);
   }
 
-    //Skip over invisible nodes and their descendants inside instances for faster performance
-    figma.skipInvisibleInstanceChildren = true
-
-    //Gets all instance nodes
-    const components = figma.root.findAllWithCriteria({
-      types: ['INSTANCE', 'TEXT']
-    })
-
-    //Allan Question: How do I use the type filtering in the code below?
-    //Allan Question: Can we do spacers and type together and sort into 2 arrays in a better way than I did it?
-
-    //GETS ALL SELECTED NODES & THEIR CHILDREN
-  
-    //create arrays to store spacer and text nodes
-    const allNodes = []
-    const spacerNodes = []
-    const textNodes = []
-
-    //gets all parent nodes from current selection
-    const parentNodes = figma.currentPage.selection;
-    //single out 1 parentNode of current selection
-    for (const parentNode of parentNodes) {
-      //send it to allNodes array
-      allNodes.push(parentNode)
-      //check if there are children
-      if ("children" in parentNode) {
-        //if so, get all children of parentNode
-        const childNodes = parentNode.findAll();
-        //single out 1 childNode of current selection
-        for (const childNode of childNodes) {
-          //send it to allNodes array
-          allNodes.push(childNode)
-        }
-      }   
-    }
-
-    //sorts nodes between spacer and text arrays
-    //Allan Question: Do we need an else?
-    for (const node of allNodes) {
-      if (node.type === 'INSTANCE') {
-        spacerNodes.push(node)
-      }
-      if (node.type === 'TEXT') {
-        textNodes.push(node)
-      }
-    }
-
-    //Finds all nodes in spacerNodes array with the name ~spacer and changes the Variant Property
-    for (const spacer of spacerNodes) {
-    if (spacer.removed === false && spacer.name.includes("~spacer") && (spacer.variantProperties)) {
-      spacer.setProperties({"Comp":"userselection"})
-      //Allan Question: How to reference user-selected UI here?
-      }
-    }
-
-    //Finds all nodes in textNodes array
-    for (const text of textNodes) {
-      //checks if each node has a text style applied
-      if (text.removed === false && text.textStyleId === '') {
-        //if so, apply user-selected text style
-        text.
-        }
-      }
-  
-
-    //GETS ALL TEXT STYLES
-    
-      // gets all Paint Style from the figma document
-      const textStyles = figma.getLocalTextStyles();
-      // filters in only text styles in folders
-      const filteredTextStyles = textStyles.filter(style => style.name.includes('/'));
-     
-      //function to get folder name prefix
-      const getNameParts = (name: string) => {
-        const nameParts = name.split('/').filter((part: string) => !!part)
-        return nameParts.map((part: string) => part.trim())
-      }
-      const getNamePrefix = (name: string): string => {
-        const pathParts = getNameParts(name)
-        pathParts.pop()
-        return pathParts.join('/')
-      }
-      
-      // ehh?
-      const folderNames = []
-
-    
 
   // Make sure to close the plugin when you're done. Otherwise the plugin will
   // keep running, which shows the cancel button at the bottom of the screen.
