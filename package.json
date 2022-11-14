@@ -11,6 +11,11 @@
   "license": "",
   "devDependencies": {
     "@figma/plugin-typings": "^1.55.1",
-    "typescript": "*"
+    "css-loader": "^6.7.1",
+    "typescript": "*",
+    "webpack": "^5.75.0"
+  },
+  "dependencies": {
+    "figma-plugin-ds": "^1.0.1"
   }
 }
