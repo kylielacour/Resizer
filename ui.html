@@ -1,29 +1,753 @@
 <!-- Standard link tag-->
-<link rel="stylesheet" href="./node_modules/figma-plugin-ds/dist/figma-plugin-ds.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css">
 <!-- Standard link tag-->
-<script src="node_modules/figma-plugin-ds/dist/iife/figma-plugin-ds.js"></script> 
+<script src="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/iife/figma-plugin-ds.js"></script>
+<script>
+    selectMenu.init(); //initiates the select menu component
+    disclosure.init(); //initiates the disclosure component
+</script>
 
-<h2>Resizer</h2>
-<p></p><select id="comp-size">
-  <option>390</option>
-  <option>768</option>
-  <option>1440+</option>
-</select></p>
-<button class='button button--primary-destructive'>Test</button>
-<button class='button button--secondary-destructive'>Label</button>
-<button id="apply">Apply</button>
-<button id="cancel">Cancel</button>
+<div class="container flex column newsize justify-content-between">
+
+  <div class="headerandbody">
+
+    <div class="copyongrey white tab-container flex flex-no-shrink justify-content-start align-items-center pr-xxxsmall pl-xsmall">
+      <div class="mr-xxxsmall tabindex="0">
+        <span role="button" tabindex="-1" class="svg-container backicon" aria-label="Add">
+          <svg class="svg" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="m13.707 16 4.6465-4.6464-.7071-.7071-5.3536 5.3535 5.3536 5.3536.7071-.7071z" fill="#000" fill-rule="evenodd"></path>
+          </svg>
+      </span>
+      </div>
+      <p class="tab newsizetitle">Add a new size set</p>
+    </div>
+
+    <div class="flex column pl-xsmall pr-xsmall mb-xsmall">
+      <div class="type pt-xsmall pb-xsmall xsmall normal" style="color: var(--figma-color-text);">
+        Input the name of the new size group below. 
+        <p class="tip">
+          <b>Tip: </b>Make sure to match the name of the type style group or variant property value exactly (e.g., for the variant "Size: 320" you would enter “320”).
+        </p>
+      </div>
+      <div class="input">
+        <input id="userSize" type="input" placeholder="Unique theme name" errormessage="Error message" class="indent borders" name="userSize"> 
+      </div>
+    </div> 
+
+  </div>
+
+  <div class="pr-xsmall pl-xsmall pb-xsmall pt-xsmall">
+    <button class="button" id="addsize">Add size</button>
+  </div>
+
+</div>
+
 <script>
 
-document.getElementById('apply').onclick = () => {
-  const selectBox = document.getElementById('comp-size');
-  const spacerInput = selectBox.value;
+  function submitnewsize() {
+    
+    const inputSize = document.querySelector('input[name="userSize"]');
+    const userInput = inputSize.value;
+
+    parent.postMessage({ pluginMessage: { type: 'size-input', userInput } }, '*');
+  }
+
+
+
+  document.querySelector('input[name="userSize"]').onkeydown = (e) => {
+    if (e.code === "Enter") {
+      submitnewsize();
+    }
+  }
+
+  document.getElementById('addsize').onclick = () => {
+    submitnewsize();
+  }
+
+  document.querySelector('.backicon').onclick = (e) => {
+    const newSizePage = document.querySelector('.newsize');
+    newSizePage.classList.remove('sizepage-on');
+  }
+  </script>
+
+<style>
+
+  /* back icon container styling */
+
+  .backicon {
+    position: relative;
+    border-radius: 4px;
+    background-clip: padding-box;
+    background-color: transparent;
+    grid-column-end: span 4;
+  }
+
+  .backicon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    flex: 0 0 32px;
+    line-height: 32px;
+    fill: var(--figma-color-icon);
+    color: var(--figma-color-icon);
+    box-sizing: border-box;
+    border: 1px solid transparent;
+  }
+
+  .backicon>svg {
+    margin: -1px;
+  }
+
+  svg {
+    display: block;
+  }
+
+  .svg-container path:not([fill="none"]) {
+    fill: inherit;
+  }
+
+  .icon--back {
+    width: 32px;
+    height: 32px;
+  }
+
+  .backicon:hover {
+    /*opacity: .6;*/
+    background-color: var(--figma-color-bg-hover);
+  }
+
+  /* Other */
+
+  .newsizetitle {
+    color: var(--figma-color-text)!important;
+  }
+
+  .white {
+    background-color: var(--figma-color-bg)!important;
+    padding-left: 5px;
+  }
   
-  parent.postMessage({ pluginMessage: { type: 'spacer-input', spacerInput } }, '*')
-}
+  input {
+    height: 34px;
+    border: 1px solid var(--figma-color-border);
+    border-radius: 3px;
+    text-indent: 8px;
+    cursor: text;
+    caret-color:#FF00FF; 
+    color: var(--figma-color-text);
+    font-family: var(--font-stack);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-normal);
+    letter-spacing: var(--font-letter-spacing-pos-xsmall);
+    line-height: var(--font-line-height);
+    background-color: var(--figma-color-bg);
+  }
 
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+  input::placeholder {
+    color: var(--figma-color-text-disabled);
+    font-family: var(--font-stack);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-normal);
+    letter-spacing: var(--font-letter-spacing-pos-xsmall);
+    line-height: var(--font-line-height);
+  }
 
-</script>
+  input:focus-visible {
+    outline: none;
+  }
+
+  .type {
+    font-size: var(--font-size-small);
+  }
+
+  .tip {
+    font-size: 10px;
+    margin-bottom: 0;
+    line-height: 150%;
+    color: var(--figma-color-text-secondary);
+  }
+
+  .newsize {
+      transform: translateY(-100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: var(--figma-color-bg);
+      z-index: 99;
+    }
+
+  .sizepage-on {
+    transform: translateY(0);
+  }
+
+</style>
+
+<div class="container flex column">
+
+  <!-- TAB BAR -->
+
+  <div class="tab-container flex flex-no-shrink justify-content-between align-items-center pr-xxxsmall pl-xsmall">
+
+    <div class="tabs flex">
+        <button class="tab active" id="sizestab">Sizes</button>
+        <button class="tab" id="settingstab">Settings</button>
+    </div>
+
+    <div class="pluscontainer" dir="auto">
+      <span role="button" tabindex="-1" class="svg-container plusicon" aria-label="Add">
+        <svg class="svg" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z" fill-rule="nonzero" fill-opacity="1" fill="#000" stroke="none"></path>
+        </svg>
+      </span>
+    </div>
+
+  </div>
+
+  <style>
+
+    /* plus container styling */
+
+    .pluscontainer {
+      grid-column-start: 21;
+      grid-column-end: span 8;
+      display: flex;
+      justify-content: right;
+    }
+
+    .plusicon {
+      position: relative;
+      border-radius: 4px;
+      background-clip: padding-box;
+      background-color: transparent;
+      grid-column-end: span 4;
+    }
+
+    .plusicon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      width: 32px;
+      flex: 0 0 32px;
+      line-height: 32px;
+      fill: var(--figma-color-icon);
+      color: var(--figma-color-icon);
+      box-sizing: border-box;
+      border: 1px solid transparent;
+    }
+
+    .plusicon>svg {
+      margin: -1px;
+    }
+
+    svg {
+      display: block;
+    }
+
+    .svg-container path:not([fill="none"]) {
+      fill: inherit;
+    }
+
+    .icon--plus {
+      width: 32px;
+      height: 32px;
+    }
+
+    .plusicon:hover {
+      background-color: var(--figma-color-bg-hover);
+    }
+
+    /* tabs styling */
+
+    .tab-container {
+      box-shadow: 0px 1px 0px var(--figma-color-border);
+      height: 41px;
+    }
+
+    button {
+      padding: 0;
+      border: none;
+      background-color: transparent;
+    }
+
+    .tab {
+      font-family: var(--font-stack);
+      font-size: var(--font-size-xsmall);
+      line-height: var(--font-line-height);
+      font-weight: var(--font-weight-medium);
+      letter-spacing: var(--font-letter-spacing-pos-small);
+      color: var(--figma-color-text-secondary);
+      padding-right: var(--size-xsmall);
+      cursor: default;
+      user-select: none;
+    }
+
+    .tab:hover {
+      color: var(--figma-color-text);
+    }
+
+    .active {
+      color: var(--figma-color-text);
+    }
+
+  </style>
+
+  <script>
+    document.getElementById('sizestab').onclick = (e) => {
+      const sizesPage = document.getElementById('sizespage');
+      const settingsPage = document.getElementById('settingspage');
+      const settingsTab = document.getElementById('settingstab');
+      sizesPage.classList.add('activetab');
+      settingsPage.classList.remove('activetab');
+      e.target.classList.add('active');
+      settingsTab.classList.remove('active');
+    }
+
+    document.getElementById('settingstab').onclick = (e) => {
+      const sizesPage = document.getElementById('sizespage');
+      const settingsPage = document.getElementById('settingspage');
+      const sizesTab = document.getElementById('sizestab');
+      sizesPage.classList.remove('activetab');
+      settingsPage.classList.add('activetab');
+      e.target.classList.add('active');
+      sizesTab.classList.remove('active');
+    }
+
+    document.querySelector('.pluscontainer').onclick = (e) => {
+      const newSizePage = document.querySelector('.newsize');
+      newSizePage.classList.add('sizepage-on');
+      document.getElementById("userSize").focus();
+    }
+  </script>
+
+  <!-- BODY -->
+
+  <div class="parent">
+
+    <!-- sizes page -->
+
+    <div id="sizespage" class="sizelist flex-grow activetab">
+
+      <div class="sizeRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall">
+        <div class="sizeiconcontainer" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0012 21.4995C10.725 21.4995 10.5012 21.2757 10.5012 20.9995L10.5012 15.9995C10.5012 15.9995 10.725 15.9995 11.0012 15.9995C11.2773 15.9995 11.5012 15.9995 11.5012 15.9995L11.5012 19.7924L19.7916 11.502L15.9987 11.502C15.9987 11.502 15.9987 11.2781 15.9987 11.002C15.9987 10.7258 15.9987 10.502 15.9987 10.502L20.9987 10.502C21.2749 10.502 21.4987 10.7258 21.4987 11.002L21.4987 16.002C21.4987 16.002 21.2749 16.002 20.9987 16.002C20.7226 16.002 20.4987 16.002 20.4987 16.002L20.4987 12.2091L12.2083 20.4995L16.0012 20.4995C16.0012 20.4995 16.0012 20.7234 16.0012 20.9995C16.0012 21.2757 16.0012 21.4995 16.0012 21.4995L11.0012 21.4995Z" fill="black"/></svg>
+          </span>
+        </div>
+        <div id="sizeValue" class="name flex-grow pr-xsmall">390</div>
+        <div class="sizeiconcontainer delete" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d='M14 18.5v-4h1v4zM17 18.5v-4h1v4z'/><path clip-rule='evenodd' d='M19 10.5a2 2 0 00-2-2h-2a2 2 0 00-2 2h-3v1h1v10a2 2 0 002 2h6a2 2 0 002-2v-10h1v-1zm-4-1a1 1 0 00-1 1h4a1 1 0 00-1-1zm5 2h-8v10a1 1 0 001 1h6a1 1 0 001-1z' fill-rule='evenodd'/></svg>        
+          </span>
+        </div>
+    </div>
+
+    <div class="sizeRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall">
+        <div class="sizeiconcontainer" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0012 21.4995C10.725 21.4995 10.5012 21.2757 10.5012 20.9995L10.5012 15.9995C10.5012 15.9995 10.725 15.9995 11.0012 15.9995C11.2773 15.9995 11.5012 15.9995 11.5012 15.9995L11.5012 19.7924L19.7916 11.502L15.9987 11.502C15.9987 11.502 15.9987 11.2781 15.9987 11.002C15.9987 10.7258 15.9987 10.502 15.9987 10.502L20.9987 10.502C21.2749 10.502 21.4987 10.7258 21.4987 11.002L21.4987 16.002C21.4987 16.002 21.2749 16.002 20.9987 16.002C20.7226 16.002 20.4987 16.002 20.4987 16.002L20.4987 12.2091L12.2083 20.4995L16.0012 20.4995C16.0012 20.4995 16.0012 20.7234 16.0012 20.9995C16.0012 21.2757 16.0012 21.4995 16.0012 21.4995L11.0012 21.4995Z" fill="black"/></svg>
+          </span>
+        </div>
+        <div id="sizeValue" class="name flex-grow pr-xsmall">768</div>
+        <div class="sizeiconcontainer delete" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d='M14 18.5v-4h1v4zM17 18.5v-4h1v4z'/><path clip-rule='evenodd' d='M19 10.5a2 2 0 00-2-2h-2a2 2 0 00-2 2h-3v1h1v10a2 2 0 002 2h6a2 2 0 002-2v-10h1v-1zm-4-1a1 1 0 00-1 1h4a1 1 0 00-1-1zm5 2h-8v10a1 1 0 001 1h6a1 1 0 001-1z' fill-rule='evenodd'/></svg>        
+          </span>
+        </div>
+    </div>
+
+      <div class="sizeRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall">
+        <div class="sizeiconcontainer" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0012 21.4995C10.725 21.4995 10.5012 21.2757 10.5012 20.9995L10.5012 15.9995C10.5012 15.9995 10.725 15.9995 11.0012 15.9995C11.2773 15.9995 11.5012 15.9995 11.5012 15.9995L11.5012 19.7924L19.7916 11.502L15.9987 11.502C15.9987 11.502 15.9987 11.2781 15.9987 11.002C15.9987 10.7258 15.9987 10.502 15.9987 10.502L20.9987 10.502C21.2749 10.502 21.4987 10.7258 21.4987 11.002L21.4987 16.002C21.4987 16.002 21.2749 16.002 20.9987 16.002C20.7226 16.002 20.4987 16.002 20.4987 16.002L20.4987 12.2091L12.2083 20.4995L16.0012 20.4995C16.0012 20.4995 16.0012 20.7234 16.0012 20.9995C16.0012 21.2757 16.0012 21.4995 16.0012 21.4995L11.0012 21.4995Z" fill="black"/></svg>
+          </span>
+        </div>
+        <div id="sizeValue" class="name flex-grow pr-xsmall">1440+</div>
+        <div class="sizeiconcontainer delete" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d='M14 18.5v-4h1v4zM17 18.5v-4h1v4z'/><path clip-rule='evenodd' d='M19 10.5a2 2 0 00-2-2h-2a2 2 0 00-2 2h-3v1h1v10a2 2 0 002 2h6a2 2 0 002-2v-10h1v-1zm-4-1a1 1 0 00-1 1h4a1 1 0 00-1-1zm5 2h-8v10a1 1 0 001 1h6a1 1 0 001-1z' fill-rule='evenodd'/></svg>        
+          </span>
+        </div>
+      </div>
+    
+    </div>
+    
+    <!-- settings page -->
+
+    <div id="settingspage" class="settingslist flex-grow">
+
+      <div class="copyongrey">
+        <p class="intro">Choose styles to include</p>
+      </div>
+      
+      <div class="settingsRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall">
+        <div class="switch">
+          <input class="switch__toggle" type="checkbox" id="typetoggle">
+          <label class="switch__label" for="typetoggle">Type Styles</label>
+        </div>
+      </div>
+
+    <div class="settingsrowlast flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall">
+      <div class="switch">
+        <input class="switch__toggle" type="checkbox" id="spacerstoggle">
+        <label class="switch__label" for="spacerstoggle">Spacers</label>
+      </div>
+    </div>
+
+    </div>
+      
+  </div>
+
+  <script>
+    // SAVED SIZES
+
+   
+    
+    // All onmessages go in here!
+
+    onmessage = (event) => {
+      
+      if (event.data.pluginMessage.name === 'closenewsizepage' && event.data.pluginMessage.message === true) {
+        const inputSize = document.querySelector('input[name="userSize"]');
+        const newSizePage = document.querySelector('.newsize');
+        newSizePage.classList.remove('sizepage-on');
+        setTimeout(() => {inputSize.value = "";}, 1000);
+      }
+      // Load any saved size rows
+      if (event.data.pluginMessage.name === "size") {
+        var sizesContainer = document.getElementById("sizespage");
+        sizesContainer.innerHTML = event.data.pluginMessage.message;
+        //give them whatever code to be able to be selected
+        activaterowselection();
+        activatedeletesize();
+      }
+    }
+  
+
+    // SELECTED STATE
+
+    function activaterowselection() { 
+      const applybutton = document.getElementById("apply");
+      if (applybutton) {
+        applybutton.disabled = true;
+      }
+      // Get the container element
+      var listContainer = document.getElementById("sizespage");
+      // Get all list items with class="listItems" inside the container
+      var listItems = listContainer.getElementsByClassName("sizeRow");
+      // Loop through the list items and add the active class to the current/clicked item
+      for (var i = 0; i < listItems.length; i++) {
+        listItems[i].addEventListener("click", function() {
+          var current = document.getElementsByClassName("selectedSize");
+          // If there's no active class
+          if (current.length > 0) {
+            current[0].className = current[0].className.replace(" selectedSize", "");
+          }
+          // Add the active class to the current/clicked button
+          this.className += " selectedSize";
+          if (applybutton) {
+            applybutton.disabled = false;
+          }
+        });
+      }
+    }
+
+    activaterowselection();
+
+    // DELETE/TRASH
+
+    function activatedeletesize() {
+
+      const allDeleteButtons = document.querySelectorAll('button.deletebutton');
+      for (const deleteButton of allDeleteButtons) {
+        deleteButton.onclick = (e) => {
+          const userData = e.target.dataset.size;
+          //send string to code.ts
+          parent.postMessage({ pluginMessage: { type: 'delete-size', userData} }, '*');
+        }
+      }
+    }
+
+  </script>
+    
+  <style>
+
+    /* SETTINGS PAGE */
+
+    .settingslist {
+      overflow-y: auto;
+      margin-top: 1px;
+    }
+
+    .settingsRow {
+      padding: 10px;
+    }
+
+    .settingsrowlast {
+      padding: 0 10px 10px 10px;
+    }
+
+    .copyongrey {
+      background-color: var(--figma-color-bg-secondary);
+    }
+
+    .intro {
+      color: var(--figma-color-text);
+      font-family: var(--font-stack);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-normal);
+      letter-spacing: var(--font-letter-spacing-pos-xsmall);
+      line-height: var(--font-line-height);
+      padding: var(--size-xsmall);
+      margin: 0;
+    }
+
+    .switch__label {
+      color: var(--figma-color-text);
+      margin-left: 0;
+      padding: 0;
+    }
+
+    .switch__label:before {
+      width: 24px;
+      height: 12px;
+      border-radius: 12px;
+      box-sizing: border-box;
+      background-color: var(--figma-color-icon-tertiary);
+      background-repeat: no-repeat;
+      background-size: 200% 100%;
+      background-clip: padding-box;
+      transition: background-position .1s ease-out;
+      border: 0;
+    }
+
+    .switch__label:after {
+      border: none;
+      height: 10px;
+      width: 10px;
+      left: 9px;
+      top: auto;
+    }
+
+    .switch__toggle {
+      width: 40px;
+    }
+
+    .switch__toggle:checked + .switch__label:before {
+      background-color:#FF00FF;
+      border: 1px solid #FF00FF;
+    }
+
+    .switch__toggle:checked + .switch__label:after {
+      border: 1px solid #FF00FF;
+    }
+
+    /* SIZE PAGE */
+
+    /* Size Icons */
+
+    .sizeiconcontainer {
+      grid-column-start: 21;
+      grid-column-end: span 8;
+      display: flex;
+      justify-content: right;
+    }
+
+    .sizeicon {
+      position: relative;
+      border-radius: 4px;
+      background-clip: padding-box;
+      background-color: transparent;
+      grid-column-end: span 4;
+    }
+
+    .sizeicon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      width: 32px;
+      flex: 0 0 32px;
+      line-height: 32px;
+      fill: var(--figma-color-icon);
+      color: var(--figma-color-icon);
+      box-sizing: border-box;
+      border: 1px solid transparent;
+    }
+
+    .sizeicon>svg {
+      margin: -1px;
+    } 
+
+    /* Trash Icon */
+
+    .svg {
+      pointer-events: none!important;
+    }
+    
+    .deletebutton {
+      pointer-events: all;
+    }
+
+    .delete {
+      visibility: hidden;
+    }
+
+    .sizeRow:hover .delete {
+      visibility: visible;
+    }
+    .delete:hover {
+      background-color: var(--figma-color-border);
+      border-radius: 4px;
+    }
+
+    .figma-light .selectedSize .delete:hover {
+      background-color:#FF00FF15;
+    }
+
+    .figma-dark .selectedSize .delete:hover {
+      background-color:#FF00FF40;
+    }
+
+    /* Size Row */
+
+    .sizeRow {
+      height: calc(var(--size-medium) + 4px);
+      cursor: default;
+      outline: 1px solid transparent;
+    }
+
+    .sizeRow:hover {
+      outline: 1px solid transparent;
+      outline-offset: -1px;
+      background-color: var(--figma-color-bg-hover);
+    }
+
+    .figma-light .selectedSize {
+      background-color: #FF00FF10;
+    }
+
+    .figma-dark .selectedSize {
+      background-color: #FF00FF25;
+    }
+    
+    .name {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      font-family: var(--font-stack);
+      font-size: var(--font-size-small);
+      line-height: var(--font-line-height);
+      font-weight: var(--font-weight-normal);
+      letter-spacing: var(--font-letter-spacing-pos-small);
+      color: var(--figma-color-text);
+    }
+
+
+    /* PAGE POSITIONING */
+
+    .container {
+      height: 100%;
+    }
+
+    #sizespage.activetab, #settingspage.activetab {
+      transform: translateX(0%);
+    }
+
+    #sizespage {
+      transform: translateX(-100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #settingspage {
+      transform: translateX(100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .parent {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    }
+
+    .sizelist {
+      overflow-y: auto;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .sizelist::-webkit-scrollbar {
+      width: 12px;
+      background-color: transparent;
+      background-image: none;
+      background-repeat: repeat-x;
+      background-size: 100% auto;
+    }
+
+    .sizelist::-webkit-scrollbar-track {
+      border: solid 3px transparent;
+      box-shadow: inset 0 0 10px 10px transparent;
+    }
+
+    .sizelist::-webkit-scrollbar-thumb {
+      border: solid 3px transparent;
+      border-radius: 6px;
+      box-shadow: inset 0 0 10px 10px var(--figma-color-icon-tertiary);
+    }
+    
+  </style>
+
+
+  <!-- FOOTER-->
+
+  <div class="footer flex row flex-no-shrink justify-content-end align-items-center pr-xsmall pl-xsmall">
+    <button disabled class="button button--primary flex-grow align-item justify-content-center" id="apply">Apply</button>
+  </div>
+
+  <script>
+    document.getElementById('apply').onclick = () => {
+      const selectedSize = document.querySelector(".selectedSize");
+      const userInput = selectedSize.innerText;
+      
+      parent.postMessage({ pluginMessage: { type: 'user-input', userInput } }, '*')
+    }
+  </script>
+
+  <style>
+  .button {
+    border-radius: 100px;
+    background-color: #FF00FF;
+    padding: 0 25px;
+  }
+
+  .button:disabled, .button:disabled:hover {
+    background-color: #B2b2b2;
+    border: none;
+    color: var(--figma-color-bg);
+  }
+  .footer {
+    border-top: 1px solid var(--figma-color-border);
+    height:var(--size-xlarge);
+  }
+  .button:hover {
+    background-color: var(--figma-color-bg);
+    border: 1px solid #FF00FF;
+    color:#FF00FF;
+    transition: ease 300ms;
+  }
+  </style>
+
+</div>
