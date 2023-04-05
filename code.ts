@@ -5,6 +5,13 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__, {themeColors: true, width: 240, height: 312 });
 
+let testStyleIds: TextStyle[] = [];
+
+figma.clientStorage.getAsync('kobold-styles').then((styles: TextStyle[]) => {
+  testStyleIds = styles
+  console.log('kobold-styles', styles);
+});
+
 function getSavedSizes() {
   let savedSizes = figma.root.getPluginData("savedSizes");
   return savedSizes.length > 0 ? JSON.parse(savedSizes) : [];
@@ -168,7 +175,16 @@ figma.ui.onmessage = msg => {
         // using the new folder name from the user, create a string in the form of folder/name
         const newGroup = addFolder(styleName);
         // get all local styles in document
-        const allStyles = figma.getLocalTextStyles()
+        const allStyles = figma.getLocalTextStyles();
+        testStyleIds.forEach(style => {
+          const id = style.id.substring(2, style.id.length - 1);
+          figma.importStyleByKeyAsync(id).then(newStyle => {
+            allStyles.push(newStyle as TextStyle);
+          });
+        });
+
+        console.log('combinedStyles', allStyles);
+
         // search through styles to find one that matches newGroup name
         const matchingStyle = allStyles.find(style => style.name === newGroup)
         // change id of text node to matchingStyle id
