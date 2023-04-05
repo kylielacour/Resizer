@@ -114,22 +114,47 @@ figma.ui.onmessage = msg => {
 
     //Gets all selected instance and text nodes
     // @ts-ignore 
-    const components = figma.currentPage.selection[0].findAllWithCriteria({
-      types: ['INSTANCE', 'TEXT']
-    })
+    // const components = figma.currentPage.selection[0].findAllWithCriteria({
+    //   types: ['INSTANCE', 'TEXT']
+    //})
+
+    // create array to store all selected nodes
+    const components = []
+    // gets all parent notes from current selection
+    const parentNodes = figma.currentPage.selection;
+    // single out 1 parentNode of current selection
+    for (const parentNode of parentNodes) {
+      // send it to allNodes array
+      components.push(parentNode)
+      const properties = (parentNode as InstanceNode).variantProperties ?? {};
+      // check if there are children
+      if ("children" in parentNode && !("Viewport" in properties)) {
+        // if so, get all children of parentNode
+        const childNodes = parentNode.findAll();
+        // single out 1 childNode of current selection
+        for (const childNode of childNodes) {
+          // send it to allNodes array
+          components.push(childNode)
+        }
+      }   
+    } 
 
     //create arrays to store spacer and text nodes
     const spacerNodes = []
     const textNodes = []
+    const componentNodes = []
 
     //sorts nodes between spacer and text
     //makes sure all instance nodes are spacers
     for (const node of components) {
       if (node.type === 'INSTANCE' && node.removed === false && node.name.includes("~spacer") && (node.variantProperties)) {
-        spacerNodes.push(node)
+        spacerNodes.push(node as InstanceNode)
       }
       if (node.type === 'TEXT') {
-        textNodes.push(node)
+        textNodes.push(node as TextNode)
+      }
+      if (node.type === 'INSTANCE' && node.removed === false && node.name.includes("~component") && (node.variantProperties)) {
+        componentNodes.push(node as InstanceNode)
       }
     }
 
@@ -137,7 +162,7 @@ figma.ui.onmessage = msg => {
     for (let text of textNodes){
       if (text.textStyleId){
         // for each text node, get the full name
-        const fullName = (figma.getStyleById(text.textStyleId) as TextStyle).name;
+        const fullName = (figma.getStyleById(text.textStyleId as string) as TextStyle).name;
         // discard the folder portion and keep the name
         const styleName = getNameSuffix(fullName);
         // using the new folder name from the user, create a string in the form of folder/name
@@ -147,13 +172,33 @@ figma.ui.onmessage = msg => {
         // search through styles to find one that matches newGroup name
         const matchingStyle = allStyles.find(style => style.name === newGroup)
         // change id of text node to matchingStyle id
+        if(!matchingStyle) {
+          console.error(`No matching style for group ${newGroup}`)
+          figma.notify(`No matching style for group ${newGroup}`, {error: true})
+          continue;
+        }
         text.textStyleId = matchingStyle?.id
       }
     }
 
     //Finds all nodes in spacerNodes array with the name ~spacer and changes the Variant Property
     for (const spacer of spacerNodes) {
-      spacer.setProperties({"Viewport":input})
+      try {
+        spacer.setProperties({"Viewport":input})
+      }
+      catch(error) {
+        console.error(`spacer:spacer error ${error}`)
+      }
+    }
+
+    //Finds all nodes in spacerNodes array with the name ~spacer and changes the Variant Property
+    for (const componentNode of componentNodes) {
+      try {
+        componentNode.setProperties({"Viewport":input})
+      }
+      catch(error) {
+        console.error(`component:component error ${error}`)
+      }
     }
   }
 }
