@@ -7,13 +7,15 @@
     disclosure.init(); //initiates the disclosure component
 </script>
 
+<!-- Add new size screen -->
+
 <div class="container flex column newsize justify-content-between">
 
   <div class="headerandbody">
 
     <div class="copyongrey white tab-container flex flex-no-shrink justify-content-start align-items-center pr-xxxsmall pl-xsmall">
       <div class="mr-xxxsmall tabindex="0">
-        <span role="button" tabindex="-1" class="svg-container backicon" aria-label="Add">
+        <span role="button" tabindex="-1" class="svg-container backicon backicon-size" aria-label="Add">
           <svg class="svg" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" d="m13.707 16 4.6465-4.6464-.7071-.7071-5.3536 5.3535 5.3536 5.3536.7071-.7071z" fill="#000" fill-rule="evenodd"></path>
           </svg>
@@ -42,6 +44,44 @@
 
 </div>
 
+<!-- Import Library Screen -->
+
+<div class="container flex column importlibrary">
+
+  <div class="headerandbody">
+
+    <div class="copyongrey white tab-container flex flex-no-shrink justify-content-start align-items-center pr-xxxsmall pl-xsmall">
+      <div class="mr-xxxsmall tabindex="0">
+        <span role="button" tabindex="-1" class="svg-container backicon backicon-library" aria-label="Add">
+          <svg class="svg" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" d="m13.707 16 4.6465-4.6464-.7071-.7071-5.3536 5.3535 5.3536 5.3536.7071-.7071z" fill="#000" fill-rule="evenodd"></path>
+          </svg>
+        </span>
+      </div>
+      <p class="tab newsizetitle">Import library styles</p>
+    </div>
+
+    <div class="flex column pl-xsmall pr-xsmall">
+      <div class="type pt-xsmall pb-xsmall xsmall normal" style="color: var(--figma-color-text);">
+        In the library file, click the save button below.
+      </div>
+      <button class="button fitwidth" id="addlibrary">Save library styles</button>
+    </div> 
+  </div>
+
+  <div class="flex column pl-xsmall pr-xsmall mb-xsmall">
+    <div class="type pt-xsmall pb-xsmall xsmall normal" style="color: var(--figma-color-text);">
+        Next, name the library and click import to bring in your styles.
+    </div>
+    <div class="input pb-xsmall">
+      <input id="userLibrary" type="input" placeholder="Library name" errormessage="Error message" class="indent borders" name="userLibrary"> 
+    </div>
+    <button disabled class="button fitwidth" id="addlibrary">Import library</button>
+  </div> 
+
+</div>
+ 
+
 <script>
 
   function submitnewsize() {
@@ -50,6 +90,14 @@
     const userInput = inputSize.value;
 
     parent.postMessage({ pluginMessage: { type: 'size-input', userInput } }, '*');
+  }
+
+  function submitlibraryname() {
+    
+    const inputLibrary = document.querySelector('input[name="userLibrary"]');
+    const userInput = inputLibrary.value;
+
+    parent.postMessage({ pluginMessage: { type: 'library-input', userInput } }, '*');
   }
 
 
@@ -64,13 +112,22 @@
     submitnewsize();
   }
 
-  document.querySelector('.backicon').onclick = (e) => {
+  document.querySelector('.backicon-size').onclick = (e) => {
     const newSizePage = document.querySelector('.newsize');
     newSizePage.classList.remove('sizepage-on');
+  }
+
+  document.querySelector('.backicon-library').onclick = (e) => {
+    const libraryImportPage = document.querySelector('.importlibrary');
+    libraryImportPage.classList.remove('sizepage-on');
   }
   </script>
 
 <style>
+
+  .fitwidth {
+    width: fit-content;
+  }
 
   /* back icon container styling */
 
@@ -180,6 +237,17 @@
       z-index: 99;
     }
 
+  .importlibrary {
+    transform: translateY(-100%);
+    transition: transform 500ms ease-in-out; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--figma-color-bg);
+    z-index: 99;
+  }
+
   .sizepage-on {
     transform: translateY(0);
   }
@@ -194,6 +262,7 @@
 
     <div class="tabs flex">
         <button class="tab active" id="sizestab">Sizes</button>
+        <button class="tab" id="librariestab">Libraries</button>
         <button class="tab" id="settingstab">Settings</button>
     </div>
 
@@ -299,20 +368,60 @@
   <script>
     document.getElementById('sizestab').onclick = (e) => {
       const sizesPage = document.getElementById('sizespage');
+      const sizesButton = document.getElementById('sizesbutton');
+      const librariesPage = document.getElementById('librariespage');
+      const librariesButton = document.getElementById('librariesbutton');
+      const librariesTab = document.getElementById('librariestab');
       const settingsPage = document.getElementById('settingspage');
+      const settingsButton = document.getElementById('settingsbutton');
       const settingsTab = document.getElementById('settingstab');
       sizesPage.classList.add('activetab');
+      sizesButton.classList.add('activetab');
+      librariesPage.classList.remove('activetab');
+      librariesButton.classList.remove('activetab');
+      librariesTab.classList.remove('active');
       settingsPage.classList.remove('activetab');
+      settingsButton.classList.remove('activetab');
+      e.target.classList.add('active');
+      settingsTab.classList.remove('active');
+    }
+
+    document.getElementById('librariestab').onclick = (e) => {
+      const librariesPage = document.getElementById('librariespage');
+      const librariesButton = document.getElementById('librariesbutton');
+      const sizesPage = document.getElementById('sizespage');
+      const sizesButton = document.getElementById('sizesbutton');
+      const sizesTab = document.getElementById('sizestab');
+      const settingsPage = document.getElementById('settingspage');
+      const settingsButton = document.getElementById('settingsbutton');
+      const settingsTab = document.getElementById('settingstab');
+      librariesPage.classList.add('activetab');
+      librariesButton.classList.add('activetab');
+      sizesPage.classList.remove('activetab');
+      sizesButton.classList.remove('activetab');
+      sizesTab.classList.remove('active');
+      settingsPage.classList.remove('activetab');
+      settingsButton.classList.remove('activetab');
       e.target.classList.add('active');
       settingsTab.classList.remove('active');
     }
 
     document.getElementById('settingstab').onclick = (e) => {
       const sizesPage = document.getElementById('sizespage');
+      const sizesButton = document.getElementById('sizesbutton');
+      const librariesPage = document.getElementById('librariespage');
+      const librariesButton = document.getElementById('librariesbutton');
+      const librariesTab = document.getElementById('librariestab');
       const settingsPage = document.getElementById('settingspage');
+      const settingsButton = document.getElementById('settingsbutton');
       const sizesTab = document.getElementById('sizestab');
       sizesPage.classList.remove('activetab');
+      sizesButton.classList.remove('activetab');
+      librariesPage.classList.remove('activetab');
+      librariesButton.classList.remove('activetab');
+      librariesTab.classList.remove('active');
       settingsPage.classList.add('activetab');
+      settingsButton.classList.add('activetab');
       e.target.classList.add('active');
       sizesTab.classList.remove('active');
     }
@@ -374,6 +483,33 @@
         </div>
       </div>
     
+    </div>
+
+    <!-- libraries page -->
+
+    <div id="librariespage" class="librarieslist flex-grow">
+
+      <div class="sizeRow libraryRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall switch sizeiconcontainer">
+          <input class="switch__toggle" type="checkbox" id="typetoggle">
+          <label id="libraryValue" class="name flex-grow pr-xsmall switch__label" for="typetoggle">Kobold Styles</label>
+        <div class="sizeiconcontainer delete librarydelete" dir="auto">
+          <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+            <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d='M14 18.5v-4h1v4zM17 18.5v-4h1v4z'/><path clip-rule='evenodd' d='M19 10.5a2 2 0 00-2-2h-2a2 2 0 00-2 2h-3v1h1v10a2 2 0 002 2h6a2 2 0 002-2v-10h1v-1zm-4-1a1 1 0 00-1 1h4a1 1 0 00-1-1zm5 2h-8v10a1 1 0 001 1h6a1 1 0 001-1z' fill-rule='evenodd'/></svg>        
+          </span>
+        </div>
+      </div>
+
+      <div class="sizeRow libraryRow flex flex-no-shrink align-items-center pl-xxsmall pr-xxxsmall switch sizeiconcontainer">
+        <input class="switch__toggle" type="checkbox" id="typetoggle">
+        <label id="libraryValue" class="name flex-grow pr-xsmall switch__label" for="typetoggle">Pattern Library</label>
+      <div class="sizeiconcontainer delete librarydelete" dir="auto">
+        <span role="button" tabindex="-1" class="svg-container sizeicon" aria-label="Add">
+          <svg class="svg" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d='M14 18.5v-4h1v4zM17 18.5v-4h1v4z'/><path clip-rule='evenodd' d='M19 10.5a2 2 0 00-2-2h-2a2 2 0 00-2 2h-3v1h1v10a2 2 0 002 2h6a2 2 0 002-2v-10h1v-1zm-4-1a1 1 0 00-1 1h4a1 1 0 00-1-1zm5 2h-8v10a1 1 0 001 1h6a1 1 0 001-1z' fill-rule='evenodd'/></svg>        
+        </span>
+      </div>
+    </div>
+
+
     </div>
     
     <!-- settings page -->
@@ -476,7 +612,20 @@
     
   <style>
 
-    /* SETTINGS PAGE */
+    /* SETTINGS & LIBRARIES PAGES */
+
+    .librarieslist {
+      overflow-y: auto;
+      margin-top: 1px;
+    }
+
+    .librariesRow {
+      padding: 10px;
+    }
+
+    .librariesrowlast {
+      padding: 0 10px 10px 10px;
+    }
 
     .settingslist {
       overflow-y: auto;
@@ -605,6 +754,11 @@
       border-radius: 4px;
     }
 
+    .librarydelete:hover {
+      background-color: var(--figma-color-bg-hover);
+      border-radius: 4px;
+    }
+
     .figma-light .selectedSize .delete:hover {
       background-color:#FF00FF15;
     }
@@ -621,10 +775,21 @@
       outline: 1px solid transparent;
     }
 
+    .libraryRow {
+      height: var(--size-medium);
+      margin: 5px 0 0 0;
+    }
+
     .sizeRow:hover {
       outline: 1px solid transparent;
       outline-offset: -1px;
       background-color: var(--figma-color-bg-hover);
+    }
+
+    .libraryRow:hover {
+      outline: 1px solid transparent;
+      outline-offset: -1px;
+      background-color: var(--figma-color-bg);
     }
 
     .figma-light .selectedSize {
@@ -654,9 +819,10 @@
       height: 100%;
     }
 
-    #sizespage.activetab, #settingspage.activetab {
+    #sizespage.activetab, #settingspage.activetab, #librariespage.activetab, #sizesbutton.activetab, #settingsbutton.activetab, #librariesbutton.activetab {
       transform: translateX(0%);
     }
+    
 
     #sizespage {
       transform: translateX(-100%);
@@ -668,11 +834,47 @@
       height: 100%;
     }
 
+    #sizesbutton {
+      transform: translateX(-100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    #librariespage {
+      transform: translateX(100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    #librariesbutton {
+      transform: translateX(100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
     #settingspage {
       transform: translateX(100%);
       transition: transform 500ms ease-in-out; 
       position: absolute;
       top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    #settingsbutton {
+      transform: translateX(100%);
+      transition: transform 500ms ease-in-out; 
+      position: absolute;
+      bottom: 0;
       left: 0;
       width: 100%;
     }
@@ -713,12 +915,33 @@
 
   <!-- FOOTER-->
 
-  <div class="footer flex row flex-no-shrink justify-content-end align-items-center pr-xsmall pl-xsmall">
+  <div id="sizesbutton" class="activetab footer flex row flex-no-shrink justify-content-end align-items-center pr-xsmall pl-xsmall">
     <button disabled class="button button--primary flex-grow align-item justify-content-center" id="apply">Apply</button>
+  </div>
+
+  <div id="librariesbutton" class="footer flex row flex-no-shrink justify-content-end align-items-center pr-xsmall pl-xsmall">
+    <button class="button button--primary flex-grow align-item justify-content-center" id="importlibrary">Import library</button>
+  </div>
+
+  <div id="settingsbutton" class="footer flex row flex-no-shrink justify-content-end align-items-center pr-xsmall pl-xsmall">
+    <button disabled class="button button--primary flex-grow align-item justify-content-center" id="savesettings">Save changes</button>
   </div>
 
   <script>
     document.getElementById('apply').onclick = () => {
+      const selectedSize = document.querySelector(".selectedSize");
+      const userInput = selectedSize.innerText;
+      
+      parent.postMessage({ pluginMessage: { type: 'user-input', userInput } }, '*')
+    }
+
+    document.getElementById('importlibrary').onclick = (e) => {
+      const importLibraryPage = document.querySelector('.importlibrary');
+      importLibraryPage.classList.add('sizepage-on');
+      document.getElementById("userLibrary").focus();
+    }
+
+    document.getElementById('savesettings').onclick = () => {
       const selectedSize = document.querySelector(".selectedSize");
       const userInput = selectedSize.innerText;
       
